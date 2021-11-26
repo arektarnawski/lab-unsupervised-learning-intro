@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[10]:
+# In[ ]:
 
 
 # Importing data & models
@@ -19,25 +19,33 @@ pca = pickle.load(open('pca_saved.sav', 'rb'))
 best_model = pickle.load(open('best_model_saved.sav', 'rb'))
 
 
-# In[58]:
+# In[110]:
+
+
+# Song
+from IPython.display import Audio
+Audio('chariots.wav', autoplay=True)
+
+
+# In[93]:
 
 
 # Welcome screen
-
+from time import sleep
 gnod = open('gnod.txt','r')
 string = gnod.read()
-from time import sleep
 
 for line in string.split('\n'):
     print(line)
-    sleep(0.2)
+    sleep(0.4)
+
 print(' ')
 print('Welcome to GNOD Song Recommender')
 print('Please provide a song\'s title and artist name and our sophisticated AI-ML-DeepLearning-Quantum algorithm will suggest your next track!') 
 print(' ')
 
 
-# In[59]:
+# In[ ]:
 
 
 import random
@@ -46,13 +54,22 @@ import random
 song_artist = input('Please enter song artist: ')
 song_title = input('Please enter song title: ')
 
+next = 'y'
 # If user typed the correct title and artist of a hot song, return any (other) hot song
-if hot_songs[(hot_songs['title'] == song_title) & (hot_songs['artist'] == song_artist)].count()[0] > 0:
+if hot_songs[(hot_songs['title'] == song_title) & (hot_songs['artist'] == song_artist)].count()[0] > 0:    
     rand_song = hot_songs[(hot_songs['title'] != song_title) & (hot_songs['artist'] != song_artist)].iloc[random.choice(hot_songs.index)]
     new_song = rand_song[0] + ' - ' + rand_song[1]
     print('Hot song entered, why don\'t you try this one then:')
     print('\033[1;32m', new_song)
-    
+    sleep(1)
+    next = input('Would you like another recommendation? (y/n)')
+    while next == 'y':
+        rand_song = hot_songs[(hot_songs['title'] != song_title) & (hot_songs['artist'] != song_artist)].iloc[random.choice(hot_songs.index)]
+        new_song = rand_song[0] + ' - ' + rand_song[1]
+        print('\033[1;32m', new_song)
+        sleep(1)
+        next = input('Would you like another recommendation? (y/n)')
+        
 else: # Alternatively, we conduct a search of the song entered on Spotify to assign a similar track from the clustered database  
     import spotipy
     from spotipy.oauth2 import SpotifyClientCredentials
@@ -86,13 +103,22 @@ else: # Alternatively, we conduct a search of the song entered on Spotify to ass
     magic = best_model.predict(answer_prep_pca)[0]
 
     # Choosing the random song from that clustes
-    recommendation = database.loc[random.choice(list(database[database['cluster'] == magic].index))]
-    final_recommendation = recommendation[1] + ' - ' + recommendation[0]
-    print('This should be fairly similar to your song:')
-    print('\033[1;36m', final_recommendation)
+    while next == 'y':
+        recommendation = database.loc[random.choice(list(database[database['cluster'] == magic].index))]
+        final_recommendation = recommendation[1] + ' - ' + recommendation[0]
+        print('This should be fairly similar to your song:')
+        print('\033[1;36m', final_recommendation)
+        sleep(1)
+        next = input('Would you like another recommendation? (y/n)')
+        while next == 'y':
+            recommendation = database.loc[random.choice(list(database[database['cluster'] == magic].index))]
+            final_recommendation = recommendation[1] + ' - ' + recommendation[0]
+            print('\033[1;36m', final_recommendation)
+            sleep(1)
+            next = input('Would you like another recommendation? (y/n)')
 
 
-# In[60]:
+# In[ ]:
 
 
 # End screen
@@ -116,4 +142,6 @@ string =iron.read()
 for line in string.split('\n'):
     print(line)
     sleep(0.1)
+    
+p.stop()
 
